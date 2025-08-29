@@ -1,20 +1,22 @@
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { User } from "../models/User";
+import jwt from "jsonwebtoken";
+import { UserModel, IUser } from "../models/User";
 
 export class AuthService {
-    private users: User[] = [
-        new User("user", bcrypt.hashSync("pass", 10)) // utente demo
-    ];
+    public async register(username: string, password: string): Promise<IUser> {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = new UserModel({ username, password: hashedPassword });
+        return user.save();
+    }
 
-    public login(username: string, password: string): string | null {
-        const user = this.users.find((u) => u.username === username);
+    public async login(username: string, password: string): Promise<string | null> {
+        const user = await UserModel.findOne({ username });
         if (!user) return null;
 
-        const isValid = bcrypt.compareSync(password, user.password);
+        const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) return null;
 
-        return jwt.sign({ username }, process.env.JWT_SECRET || "secret", {
+        return jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET || "secret", {
             expiresIn: "1h",
         });
     }
