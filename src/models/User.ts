@@ -26,4 +26,4 @@ const UserSchema = new Schema<IUser>({
     movimenti: { type: [MovimentoSchema], default: [] },
 });
 
-export const User = model<IUser>("User", UserSchema);
+export const UserModel = model<IUser>("User", UserSchema);
