@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { setupSwagger } from "./config/swagger";
 import authRoutes from "./routes/AuthRoutes";
@@ -13,6 +13,7 @@ export class App {
         this.config();
         this.routes();
         setupSwagger(this.app);
+        this.errorHandler();
     }
 
     private config(): void {
@@ -23,5 +24,12 @@ export class App {
     private routes(): void {
         this.app.use("/api/auth", authRoutes);
         this.app.use("/api", authMiddleware, accountRoutes);
+    }
+
+    private errorHandler(): void {
+        this.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+            console.error("Errore non gestito:", err);
+            res.status(500).json({ message: "Errore interno del server" });
+        });
     }
 }
