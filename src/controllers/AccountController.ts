@@ -1,62 +1,101 @@
 import { Request, Response, NextFunction } from "express";
-import { UserModel } from "../models/User";
+import { AccountService, BonificoInput } from "../services/AccountService";
+import PDFDocument from "pdfkit";
 
 export class AccountController {
-    static async getSaldo(req: Request & { userId?: string }, res: Response, next: NextFunction) {
-        try {
-            const user = await UserModel.findById(req.userId);
-            if (!user) return res.status(404).json({ message: "Utente non trovato" });
+    private accountService: AccountService;
 
-            res.json({ saldo: user.saldo });
+    constructor() {
+        this.accountService = new AccountService();
+    }
+
+    public getSaldo = async (req: Request & { userId?: string }, res: Response, next: NextFunction) => {
+        try {
+            if (!req.userId) return res.status(401).json({ message: "Utente non autenticato" });
+
+            const saldo = await this.accountService.getSaldo(req.userId);
+            if (saldo === null) return res.status(404).json({ message: "Utente non trovato" });
+
+            res.status(200).json({ saldo });
         } catch (err) {
             next(err);
         }
-    }
+    };
 
-    static async getMovimentiPaginati(req: Request & { userId?: string }, res: Response, next: NextFunction) {
+    public getMovimentiPaginati = async (
+        req: Request & { userId?: string },
+        res: Response,
+        next: NextFunction
+    ) => {
         try {
+            if (!req.userId) return res.status(401).json({ message: "Utente non autenticato" });
+
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
 
-            const user = await UserModel.findById(req.userId);
-            if (!user) return res.status(404).json({ message: "Utente non trovato" });
+            const result = await this.accountService.getMovimentiPaginati(req.userId, page, limit);
+            if (!result) return res.status(404).json({ message: "Utente non trovato" });
 
-            const sorted = [...user.movimenti].sort((a, b) => b.data.getTime() - a.data.getTime());
-            const start = (page - 1) * limit;
-            const paginati = sorted.slice(start, start + limit);
-
-            res.json({
-                contenuto: paginati,
-                pagina: page,
-                totalePagine: Math.ceil(user.movimenti.length / limit),
-                totaleElementi: user.movimenti.length,
-            });
+            res.status(200).json(result);
         } catch (err) {
             next(err);
         }
-    }
+    };
 
-    static async createBonifico(req: Request & { userId?: string }, res: Response, next: NextFunction) {
+    public createBonifico = async (
+        req: Request & { userId?: string },
+        res: Response,
+        next: NextFunction
+    ) => {
         try {
-            const { beneficiario, iban, importo, causale } = req.body;
-            const user = await UserModel.findById(req.userId);
-            if (!user) return res.status(404).json({ message: "Utente non trovato" });
+            if (!req.userId) return res.status(401).json({ message: "Utente non autenticato" });
 
-            if (importo <= 0 || importo > user.saldo) {
-                return res.status(400).json({ message: "Saldo insufficiente o importo non valido" });
+            const { beneficiario, iban, importo, causale } = req.body as BonificoInput;
+            if (!beneficiario || !iban || !importo || !causale) {
+                return res.status(400).json({ message: "Dati bonifico incompleti" });
             }
 
-            user.saldo -= importo;
-            user.movimenti.push({
-                data: new Date(),
-                descrizione: `Bonifico a ${beneficiario} - ${causale}`,
-                importo: -importo,
-            });
+            const success = await this.accountService.createBonifico(req.userId, { beneficiario, iban, importo, causale });
+            if (!success) return res.status(400).json({ message: "Saldo insufficiente o importo non valido" });
 
-            await user.save();
-            res.json({ message: "Bonifico effettuato con successo" });
+            res.status(200).json({ message: "Bonifico effettuato con successo" });
         } catch (err) {
             next(err);
         }
-    }
+    };
+
+    public downloadMovimentiPdf = async (
+        req: Request & { userId?: string },
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            if (!req.userId) return res.status(401).json({ message: "Utente non autenticato" });
+
+            const movimenti = await this.accountService.getMovimentiPerPdf(req.userId);
+            if (!movimenti) return res.status(404).json({ message: "Utente non trovato" });
+
+            const doc = new PDFDocument({ margin: 30, size: "A4" });
+
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", "attachment; filename=movimenti.pdf");
+
+            doc.pipe(res);
+
+            doc.fontSize(18).text("Lista Movimenti", { align: "center" });
+            doc.moveDown(1);
+
+            doc.fontSize(12);
+            movimenti.forEach((mov) => {
+                doc.text(`Data: ${new Date(mov.data).toLocaleString()}`, { continued: true });
+                doc.text(` | Descrizione: ${mov.descrizione}`, { continued: true });
+                doc.text(` | Importo: ${mov.importo.toFixed(2)}`);
+                doc.moveDown(0.5);
+            });
+
+            doc.end();
+        } catch (err) {
+            next(err);
+        }
+    };
 }

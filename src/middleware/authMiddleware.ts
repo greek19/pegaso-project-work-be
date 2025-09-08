@@ -1,18 +1,21 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { AuthService } from "../services/AuthService";
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+const authService = new AuthService();
+
+export async function authMiddleware(req: Request & { userId?: string }, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
-    if (!authHeader) {
-        return res.status(401).json({ message: "Token mancante" });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "Token mancante o non valido" });
     }
 
-    const token = authHeader.split(" ")[1] || '';
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as unknown as { id: string };
-        req.userId = decoded.id;
-        next();
-    } catch (err) {
-        return res.status(401).json({ message: "Token non valido" });
+    const token = authHeader.split(" ")[1];
+    const payload = authService.verifyToken(token);
+
+    if (!payload) {
+        return res.status(401).json({ message: "Token non valido o scaduto" });
     }
+
+    req.userId = payload.userId;
+    next();
 }
