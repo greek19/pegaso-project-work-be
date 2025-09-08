@@ -13,14 +13,24 @@ export class AccountController {
         }
     }
 
-    static async getUltimiMovimenti(req: Request & { userId?: string }, res: Response, next: NextFunction) {
+    static async getMovimentiPaginati(req: Request & { userId?: string }, res: Response, next: NextFunction) {
         try {
+            const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 10;
+
             const user = await UserModel.findById(req.userId);
             if (!user) return res.status(404).json({ message: "Utente non trovato" });
 
             const sorted = [...user.movimenti].sort((a, b) => b.data.getTime() - a.data.getTime());
-            res.json(sorted.slice(0, limit));
+            const start = (page - 1) * limit;
+            const paginati = sorted.slice(start, start + limit);
+
+            res.json({
+                contenuto: paginati,
+                pagina: page,
+                totalePagine: Math.ceil(user.movimenti.length / limit),
+                totaleElementi: user.movimenti.length,
+            });
         } catch (err) {
             next(err);
         }

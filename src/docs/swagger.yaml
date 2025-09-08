@@ -3,6 +3,7 @@ info:
   title: My API
   version: 1.0.0
   description: Documentazione API con Swagger in YAML
+
 servers:
   - url: http://localhost:4000
 
@@ -60,3 +61,103 @@ paths:
           description: Utente registrato con successo
         "400":
           description: Richiesta non valida
+
+  /api/saldo:
+    get:
+      summary: Ottieni il saldo dell’utente
+      tags:
+        - Account
+      responses:
+        "200":
+          description: Saldo recuperato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  saldo:
+                    type: number
+        "404":
+          description: Utente non trovato
+
+  /api/movimenti:
+    get:
+      summary: Ottieni i movimenti dell’utente (paginati)
+      tags:
+        - Account
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Numero della pagina
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Numero di movimenti per pagina
+      responses:
+        "200":
+          description: Lista paginata dei movimenti
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  movimenti:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        data:
+                          type: string
+                          format: date-time
+                        descrizione:
+                          type: string
+                        importo:
+                          type: number
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+        "404":
+          description: Utente non trovato
+
+  /api/bonifico:
+    post:
+      summary: Effettua un bonifico
+      tags:
+        - Account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - beneficiario
+                - iban
+                - importo
+                - causale
+              properties:
+                beneficiario:
+                  type: string
+                iban:
+                  type: string
+                importo:
+                  type: number
+                causale:
+                  type: string
+      responses:
+        "200":
+          description: Bonifico effettuato con successo
+        "400":
+          description: Saldo insufficiente o importo non valido
+        "404":
+          description: Utente non trovato
