@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AccountService, BonificoInput } from "../services/AccountService";
-import PDFDocument from "pdfkit";
+import {PdfGenerator} from "../utils/PdfGenerator";
 
 export class AccountController {
     private accountService: AccountService;
@@ -64,36 +64,17 @@ export class AccountController {
         }
     };
 
-    public downloadMovimentiPdf = async (
-        req: Request & { userId?: string },
-        res: Response,
-        next: NextFunction
-    ) => {
+    public downloadMovimentiPdf = async (req: Request & { userId?: string }, res: Response, next: NextFunction) => {
         try {
             if (!req.userId) return res.status(401).json({ message: "Utente non autenticato" });
 
             const movimenti = await this.accountService.getMovimentiPerPdf(req.userId);
             if (!movimenti) return res.status(404).json({ message: "Utente non trovato" });
 
-            const doc = new PDFDocument({ margin: 30, size: "A4" });
-
             res.setHeader("Content-Type", "application/pdf");
             res.setHeader("Content-Disposition", "attachment; filename=movimenti.pdf");
 
-            doc.pipe(res);
-
-            doc.fontSize(18).text("Lista Movimenti", { align: "center" });
-            doc.moveDown(1);
-
-            doc.fontSize(12);
-            movimenti.forEach((mov) => {
-                doc.text(`Data: ${new Date(mov.data).toLocaleString()}`, { continued: true });
-                doc.text(` | Descrizione: ${mov.descrizione}`, { continued: true });
-                doc.text(` | Importo: ${mov.importo.toFixed(2)}`);
-                doc.moveDown(0.5);
-            });
-
-            doc.end();
+            PdfGenerator.createMovimentiPdf(movimenti, res);
         } catch (err) {
             next(err);
         }
