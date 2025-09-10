@@ -4,6 +4,8 @@ import { setupSwagger } from "./config/swagger";
 import authRoutes from "./routes/AuthRoutes";
 import accountRoutes from "./routes/AccountRoutes";
 import { authMiddleware } from "./middleware/authMiddleware";
+import tipologicheRoutes from "./routes/TipologicheRoutes";
+import polizzeRoutes from "./routes/PolizzeRoutes";
 
 export class App {
     public app: Application;
@@ -24,6 +26,8 @@ export class App {
     private routes(): void {
         this.app.use("/api/auth", authRoutes);
         this.app.use("/api", authMiddleware, accountRoutes);
+        this.app.use("/api/tipologiche",authMiddleware, tipologicheRoutes);
+        this.app.use("/api/polizze", authMiddleware, polizzeRoutes);
     }
 
     private errorHandler(): void {
