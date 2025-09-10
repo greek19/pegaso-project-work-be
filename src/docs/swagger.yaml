@@ -5,7 +5,12 @@ info:
   description: Documentazione API con Swagger in YAML
 servers:
   - url: http://localhost:4000
-
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
   /api/auth/login:
     post:
@@ -33,5 +38,359 @@ paths:
                 properties:
                   token:
                     type: string
+        "400":
+          description: Username e password obbligatori
         "401":
           description: Credenziali non valide
+        "500":
+          description: Errore durante il login
+
+  /api/auth/logout:
+    post:
+      summary: Effettua il logout
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Logout effettuato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "401":
+          description: Token mancante o non valido
+        "500":
+          description: Errore durante il logout
+
+  /api/auth/register:
+    post:
+      summary: Registra un nuovo utente
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: Utente registrato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  username:
+                    type: string
+        "400":
+          description: Richiesta non valida o registrazione fallita
+
+  /api/saldo:
+    get:
+      summary: Ottieni il saldo dell’utente
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Saldo recuperato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  saldo:
+                    type: number
+        "401":
+          description: Utente non autenticato
+        "404":
+          description: Utente non trovato
+
+  /api/movimenti:
+    get:
+      summary: Ottieni i movimenti dell’utente (paginati)
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Lista paginata dei movimenti
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contenuto:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        data:
+                          type: string
+                          format: date-time
+                        descrizione:
+                          type: string
+                        importo:
+                          type: number
+                  pagina:
+                    type: integer
+                  totalePagine:
+                    type: integer
+                  totaleElementi:
+                    type: integer
+        "401":
+          description: Utente non autenticato
+        "404":
+          description: Utente non trovato
+
+  /api/bonifico:
+    post:
+      summary: Effettua un bonifico
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - beneficiario
+                - iban
+                - importo
+                - causale
+              properties:
+                beneficiario:
+                  type: string
+                iban:
+                  type: string
+                importo:
+                  type: number
+                causale:
+                  type: string
+      responses:
+        "200":
+          description: Bonifico effettuato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: Saldo insufficiente o importo non valido
+        "401":
+          description: Utente non autenticato
+        "404":
+          description: Utente non trovato
+        "500":
+          description: Errore interno
+
+  /api/movimenti/pdf:
+    get:
+      summary: Scarica i movimenti dell'utente in PDF
+      tags:
+        - Account
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: PDF generato con successo
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Utente non autenticato
+        "404":
+          description: Utente non trovato
+        "500":
+          description: Errore interno
+
+  /api/tipologiche/fondi:
+    get:
+      summary: Ottieni la lista dei fondi disponibili
+      tags:
+        - Tipologiche
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista fondi recuperata con successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    nome:
+                      type: string
+                    descrizione:
+                      type: string
+                    tipoAttivo:
+                      type: string
+                    rendimento1anno:
+                      type: number
+                    investimentoMinimo:
+                      type: number
+                    sfdrLevel:
+                      type: integer
+                    performance:
+                      type: array
+                      items:
+                        type: number
+        "500":
+          description: Errore interno
+
+  /api/tipologiche/polizze:
+    get:
+      summary: Ottieni la lista delle polizze generali disponibili
+      tags:
+        - Tipologiche
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista polizze recuperata con successo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    nome:
+                      type: string
+                    tipo:
+                      type: string
+                    costoMensile:
+                      type: number
+        "500":
+          description: Errore interno
+
+  /api/polizze:
+    get:
+      summary: Ottieni le polizze dell’utente
+      tags:
+        - Polizze
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista delle polizze attive e disponibili dell’utente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  polizzeAttive:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        nome:
+                          type: string
+                        tipo:
+                          type: string
+                        costoMensile:
+                          type: number
+                  polizzeDisponibili:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        nome:
+                          type: string
+                        tipo:
+                          type: string
+                        costoMensile:
+                          type: number
+        "401":
+          description: Utente non autenticato
+        "500":
+          description: Errore interno
+
+  /api/polizze/aggiungi:
+    post:
+      summary: Aggiungi una polizza all’utente
+      tags:
+        - Polizze
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - polizzaId
+              properties:
+                polizzaId:
+                  type: string
+      responses:
+        "200":
+          description: Polizza aggiunta con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  nome:
+                    type: string
+                  tipo:
+                    type: string
+                  costoMensile:
+                    type: number
+        "400":
+          description: Polizza già attiva o richiesta non valida
+        "401":
+          description: Utente non autenticato
+        "500":
+          description: Errore interno
