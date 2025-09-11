@@ -20,4 +20,16 @@ export class PolizzeService {
         const userPolizza = new UserPolizzaModel({ userId, polizzaId });
         return userPolizza.save();
     }
+
+    async rimuoviPolizza(userId: string | undefined, polizzaId: string | undefined) {
+        const userPolizza = await UserPolizzaModel.findOne({ userId, polizzaId, attiva: true });
+
+        if (!userPolizza) return null;
+
+        userPolizza.attiva = false;
+        await userPolizza.save();
+
+        return userPolizza;
+    }
 }
+

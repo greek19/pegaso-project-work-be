@@ -22,9 +22,10 @@ export class AuthController {
                 code: "VALIDATION_ERROR",
             });
         }
+        const saldo: number = 1000;
 
         try {
-            const user = await this.authService.register(username, password);
+            const user = await this.authService.register(username, password, saldo);
             return res.status(201).json({ id: user._id, username: user.username });
         } catch (error) {
             return res.status(400).json(<ErrorResponse>{

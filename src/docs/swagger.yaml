@@ -86,6 +86,8 @@ paths:
                   type: string
                 password:
                   type: string
+                saldo:
+                  type: number
       responses:
         "201":
           description: Utente registrato con successo
@@ -394,3 +396,35 @@ paths:
           description: Utente non autenticato
         "500":
           description: Errore interno
+  /api/polizze/rimuovi/{polizzaId}:
+    delete:
+      summary: Rimuovi una polizza dall’utente
+      tags:
+        - Polizze
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: polizzaId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Polizza rimossa con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "400":
+          description: Polizza non attiva o richiesta non valida
+        "401":
+          description: Utente non autenticato
+        "404":
+          description: Polizza non trovata per l’utente
+        "500":
+          description: Errore interno
+
