@@ -427,3 +427,4 @@ paths:
           description: Polizza non trovata per l’utente
         "500":
           description: Errore interno
+

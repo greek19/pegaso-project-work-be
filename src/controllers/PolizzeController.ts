@@ -40,3 +40,4 @@ export const deleteRimuoviPolizza = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Errore nella rimozione polizza" });
     }
 };
+
