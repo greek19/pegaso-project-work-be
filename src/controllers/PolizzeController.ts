@@ -23,3 +23,20 @@ export const postAggiungiPolizza = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Errore nell'aggiunta polizza" });
     }
 };
+
+export const deleteRimuoviPolizza = async (req: Request, res: Response) => {
+    try {
+        const userId = req.userId;
+        const { polizzaId } = req.params;
+
+        const result = await polizzeService.rimuoviPolizza(userId, polizzaId);
+
+        if (!result) {
+            return res.status(404).json({ message: "Polizza non trovata o non attiva" });
+        }
+
+        res.json({ message: "Polizza rimossa con successo" });
+    } catch (err) {
+        res.status(500).json({ message: "Errore nella rimozione polizza" });
+    }
+};

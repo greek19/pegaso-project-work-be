@@ -17,7 +17,7 @@ export class AuthService {
         this.tokenBlacklist = new Set();
     }
 
-    public async register(username: string, password: string) {
+    public async register(username: string, password: string, saldo: number) {
         const existingUser = await UserModel.findOne({ username });
         if (existingUser) {
             throw new Error("Utente già registrato");
@@ -27,6 +27,7 @@ export class AuthService {
         const newUser = new UserModel({
             username,
             password: hashedPassword,
+            saldo
         });
 
         return await newUser.save();
