@@ -1,0 +1,115 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36" version="28.2.1">
+  <diagram name="MongoDB ER-like" id="0">
+    <mxGraphModel dx="1358" dy="708" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="users" value="users" style="swimlane;align=left;verticalAlign=top;childLayout=stackLayout;horizontal=1;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="280" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="u1" value="• _id : ObjectId (PK)" style="text" parent="users" vertex="1">
+          <mxGeometry y="30" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="u2" value="• username : string" style="text" parent="users" vertex="1">
+          <mxGeometry y="50" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="u3" value="• password : string" style="text" parent="users" vertex="1">
+          <mxGeometry y="70" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="u4" value="• saldo : int" style="text" parent="users" vertex="1">
+          <mxGeometry y="90" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="u5" value="• movimenti[] : array" style="text" parent="users" vertex="1">
+          <mxGeometry y="110" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="polizze" value="polizze" style="swimlane;align=left;verticalAlign=top;childLayout=stackLayout;horizontal=1;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="380" y="40" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" value="• _id : ObjectId (PK)" style="text" parent="polizze" vertex="1">
+          <mxGeometry y="30" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" value="• nome : string" style="text" parent="polizze" vertex="1">
+          <mxGeometry y="50" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" value="• descrizione : string" style="text" parent="polizze" vertex="1">
+          <mxGeometry y="70" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" value="• tipo : string" style="text" parent="polizze" vertex="1">
+          <mxGeometry y="90" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="p5" value="• costoMensile : int" style="text" parent="polizze" vertex="1">
+          <mxGeometry y="110" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="UserPolizza" value="UserPolizza" style="swimlane;align=left;verticalAlign=top;childLayout=stackLayout;horizontal=1;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="240" y="260" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="up1" value="• _id : ObjectId (PK)" style="text" parent="UserPolizza" vertex="1">
+          <mxGeometry y="30" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="up2" value="• userId : ObjectId (FK)" style="text" parent="UserPolizza" vertex="1">
+          <mxGeometry y="50" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="up3" value="• polizzaId : ObjectId (FK)" style="text" parent="UserPolizza" vertex="1">
+          <mxGeometry y="70" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="up4" value="• attiva : boolean" style="text" parent="UserPolizza" vertex="1">
+          <mxGeometry y="90" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="up5" value="• dataAttivazione : date" style="text" parent="UserPolizza" vertex="1">
+          <mxGeometry y="110" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="fondi" value="fondi" style="swimlane;align=left;verticalAlign=top;childLayout=stackLayout;horizontal=1;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="640" y="260" width="300" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" value="• _id : ObjectId (PK)" style="text" parent="fondi" vertex="1">
+          <mxGeometry y="30" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" value="• nome : string" style="text" parent="fondi" vertex="1">
+          <mxGeometry y="50" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" value="• descrizione : string" style="text" parent="fondi" vertex="1">
+          <mxGeometry y="70" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" value="• tipoAttivo : string" style="text" parent="fondi" vertex="1">
+          <mxGeometry y="90" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f5" value="• investimentoMinimo : int" style="text" parent="fondi" vertex="1">
+          <mxGeometry y="110" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f6" value="• performance[] : array&lt;int&gt;" style="text" parent="fondi" vertex="1">
+          <mxGeometry y="130" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f7" value="• rendimento1anno : double" style="text" parent="fondi" vertex="1">
+          <mxGeometry y="150" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f8" value="• sfdrLevel : int" style="text" parent="fondi" vertex="1">
+          <mxGeometry y="170" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="movimenti" value="movimenti[]" style="swimlane;dashed=1;align=left;verticalAlign=top;childLayout=stackLayout;horizontal=1;rounded=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="440" width="260" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" value="• _id : ObjectId" style="text" parent="movimenti" vertex="1">
+          <mxGeometry y="30" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="m2" value="• data : date" style="text" parent="movimenti" vertex="1">
+          <mxGeometry y="50" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="m3" value="• descrizione : string" style="text" parent="movimenti" vertex="1">
+          <mxGeometry y="70" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="m4" value="• importo : int" style="text" parent="movimenti" vertex="1">
+          <mxGeometry y="90" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="24q1GB237FIahp4sn1K8-1" style="endArrow=block;html=1;" parent="1" source="users" target="UserPolizza" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="24q1GB237FIahp4sn1K8-2" style="endArrow=block;html=1;" parent="1" source="polizze" target="UserPolizza" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="24q1GB237FIahp4sn1K8-3" style="endArrow=open;dashed=1;html=1;" parent="1" source="users" target="movimenti" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
